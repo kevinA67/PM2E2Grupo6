@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">PM2E2Grupo6</string>
+    <string name="nombre">Nombre</string>
+    <string name="telefono">Teléfono</string>
+    <string name="latitud">Latitud</string>
+    <string name="longitud">Longitud</string>
+    <string name="tomarVideo">Tomar vídeo</string>
+    <string name="salvarContacto">Salvar contacto</string>
+    <string name="contactosSalvados">Contactos salvados</string>
+    <string name="lista">Lista</string>
+
 </resources>
