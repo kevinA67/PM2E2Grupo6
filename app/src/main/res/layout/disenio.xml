@@ -10,8 +10,10 @@
     app:cardUseCompatPadding="true">
 
     <LinearLayout
+        android:id="@+id/item"
         android:layout_width="400dp"
         android:layout_height="wrap_content"
+        android:background="@drawable/selector"
         android:animateLayoutChanges="true"
         android:orientation="vertical">
 
@@ -39,7 +41,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
                 android:layout_marginStart="4dp"
-                android:layout_marginTop="17dp"
+                android:layout_marginTop="8dp"
                 android:layout_toEndOf="@+id/imageView2"
                 android:orientation="vertical"
                 android:layout_marginLeft="4dp"
@@ -55,6 +57,15 @@
                     android:textSize="24sp"
                     android:textStyle="bold"/>
 
+                <TextView
+                    android:id="@+id/telefono2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="2dp"
+                    android:text="@string/telefono"
+                    android:textColor="@color/black"
+                    android:textSize="15sp"
+                    android:textStyle=""/>
             </LinearLayout>
 
         </RelativeLayout>

@@ -15,8 +15,20 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EdgeEffect;
 import android.widget.EditText;
+import android.widget.SearchView;
 import android.widget.Toast;
 import android.widget.VideoView;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+import com.example.pm2e2grupo6.Config.Contactos;
+import com.example.pm2e2grupo6.Config.RestApiMethods;
+
+import org.json.JSONObject;
 
 public class ActivityCreate extends AppCompatActivity {
     private static final int REQUEST_VIDEO_CAPTURE = 1;
@@ -26,6 +38,7 @@ public class ActivityCreate extends AppCompatActivity {
     EditText nombre, telefono, latitud, longitud;
     VideoView videoView;
     Uri videoUri;
+    private RequestQueue requestQueue;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,8 +51,7 @@ public class ActivityCreate extends AppCompatActivity {
         latitud=(EditText) findViewById(R.id.txtLatitud);
         longitud=(EditText) findViewById(R.id.txtLongitud);
         videoView=(VideoView) findViewById(R.id.videoView);
-        tomarVideo=findViewById(R.id.btnTomarVideo);
-
+        tomarVideo=(Button) findViewById(R.id.btnTomarVideo);
 
         contactos.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -63,6 +75,46 @@ public class ActivityCreate extends AppCompatActivity {
     }
 
     private void savedata() {
+        requestQueue = Volley.newRequestQueue(this);
+        Contactos contactos=new Contactos();
+
+        contactos.setFull_name(nombre.getText().toString());
+        contactos.setTelefono(telefono.getText().toString());
+        contactos.setLatitud_gps(latitud.getText().toString());
+        contactos.setLongitud_gps(longitud.getText().toString());
+
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("full_name", contactos.getFull_name());
+            jsonObject.put("telefono", contactos.getTelefono());
+            jsonObject.put("latitud_gps", contactos.getLatitud_gps());
+            jsonObject.put("longitud_gps", contactos.getLongitud_gps());
+
+
+            JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, RestApiMethods.EndpointPostContact,
+                    jsonObject, new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject response) {
+                    try {
+                        String mensaje = response.getString("message");
+                        Toast.makeText(getApplicationContext(), mensaje, Toast.LENGTH_LONG).show();
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_LONG).show();
+                }
+            });
+
+            requestQueue.add(request);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
     }
 
     private void checkPermissionsAndDispatchTakeVideoIntent() {
