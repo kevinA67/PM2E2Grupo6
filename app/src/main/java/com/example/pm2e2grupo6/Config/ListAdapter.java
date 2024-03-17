@@ -10,6 +10,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.pm2e2grupo6.R;
@@ -21,6 +22,11 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
     private LayoutInflater inflater;
     private Context context;
     final ListAdapter.OnItemClickListener listener;
+
+    public static int getSelectedItem() {
+        return selectedItem;
+    }
+
     public static int selectedItem = -1;
 
     public interface OnItemClickListener {
@@ -73,6 +79,8 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
         notifyDataSetChanged();
     }
 
+
+
     public class ViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView;
         TextView nombre, telefono;
@@ -83,12 +91,13 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
             imageView = (ImageView) itemView.findViewById(R.id.imageView2);
             nombre = (TextView) itemView.findViewById(R.id.nombre);
             telefono = (TextView) itemView.findViewById(R.id.telefono2);
-//            item=(LinearLayout) itemView.findViewById(R.id.item);
+            //item=(LinearLayout) itemView.findViewById(R.id.item);
         }
 
         void bindData(final Contactos contactos) {
             nombre.setText(contactos.getFull_name());
             telefono.setText(contactos.getTelefono());
+            //limpiarSeleccion();
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -96,5 +105,10 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
                 }
             });
         }
+
+//        public void limpiarSeleccion(){
+//            item.setBackgroundColor(ContextCompat.getColor(context, R.color.gris));
+//        }
+
     }
 }
