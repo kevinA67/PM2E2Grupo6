@@ -1,6 +1,8 @@
 package com.example.pm2e2grupo6.Config;
 
-public class Contactos {
+import java.io.Serializable;
+
+public class Contactos implements Serializable {
 
     private String id_contacto;
     private String full_name;
@@ -22,6 +24,11 @@ public class Contactos {
         this.latitud_gps = latitud_gps;
         this.longitud_gps = longitud_gps;
         this.video = video;
+    }
+
+    public Contactos(String full_name,String telefono) {
+        this.full_name = full_name;
+        this.telefono=telefono;
     }
 
     public String getId_contacto() {
