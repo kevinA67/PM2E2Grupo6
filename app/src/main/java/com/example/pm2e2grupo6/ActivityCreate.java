@@ -97,7 +97,7 @@ public class ActivityCreate extends AppCompatActivity {
                 public void onResponse(JSONObject response) {
                     try {
                         String mensaje = response.getString("message");
-                        Toast.makeText(getApplicationContext(), mensaje, Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), "Contacto salvado.", Toast.LENGTH_LONG).show();
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     }

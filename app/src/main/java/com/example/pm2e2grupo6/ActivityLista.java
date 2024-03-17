@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -42,12 +43,12 @@ public class ActivityLista extends AppCompatActivity {
     SearchView searchView;
     ListAdapter listAdapter;
     Button eliminar;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lista);
 
+        requestQueue = Volley.newRequestQueue(this);
         searchView = (SearchView) findViewById(R.id.searchView);
         searchView.clearFocus();
         eliminar = (Button) findViewById(R.id.btnEliminar);
@@ -67,7 +68,7 @@ public class ActivityLista extends AppCompatActivity {
         eliminar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (ListAdapter.selectedItem != -1) {
+                if (ListAdapter.getSelectedItem() != -1) {
                     // Mostrar un diálogo de confirmación de eliminación
                     alertaEliminar();
                 } else {
@@ -107,9 +108,10 @@ public class ActivityLista extends AppCompatActivity {
                         try {
                             JSONObject obj = response.getJSONObject(i);
                             Contactos contactos = new Contactos();
+                            contactos.setId_contacto(obj.get("id_contacto").toString());
                             contactos.setFull_name(obj.get("full_name").toString());
                             contactos.setTelefono(obj.get("telefono").toString());
-                            listContactos.add(new Contactos(contactos.getFull_name(), contactos.getTelefono()));
+                            listContactos.add(new Contactos(contactos.getId_contacto(), contactos.getFull_name(), contactos.getTelefono()));
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -157,32 +159,44 @@ public class ActivityLista extends AppCompatActivity {
         builder.setPositiveButton("Eliminar", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                // Si el usuario confirma la actualización, establecer confirmacion como true
-                requestQueue = Volley.newRequestQueue(getApplicationContext());
+                // Obtener el contacto seleccionado
+                int selectedItemIndex = ListAdapter.getSelectedItem();
+                if (selectedItemIndex != -1) {
+                    Contactos contactos = listContactos.get(selectedItemIndex);
 
-                StringRequest stringRequest = new StringRequest(Request.Method.DELETE, EndpointDeleteContact + "/" + ListAdapter.selectedItem, jsonObject,
-                        new Response.Listener<JSONObject>() {
+
+                    JSONObject jsonObject = new JSONObject();
+                    try {
+                        jsonObject.put("id_contacto", contactos.getId_contacto());
+                        //Toast.makeText(getApplicationContext(), "Contacto seleccionado:  " + contactos.getFull_name(), Toast.LENGTH_LONG).show();
+
+                        JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, EndpointDeleteContact, jsonObject,
+                                new Response.Listener<JSONObject>() {
+                                    @Override
+                                    public void onResponse(JSONObject response) {
+                                        try {
+                                            String mensaje = response.getString("message");
+                                            Toast.makeText(getApplicationContext(), "Contacto eliminado.", Toast.LENGTH_LONG).show();
+                                        } catch (Exception ex) {
+                                            ex.printStackTrace();
+                                        }
+                                    }
+                                }, new Response.ErrorListener() {
                             @Override
-                            public void onResponse(JSONObject response) {
-                                try {
-                                    String mensaje = response.getString("message");
-                                    Toast.makeText(getApplicationContext(), mensaje, Toast.LENGTH_LONG).show();
-                                } catch (Exception ex) {
-                                    ex.printStackTrace();
-                                }
+                            public void onErrorResponse(VolleyError error) {
+                                Toast.makeText(getApplicationContext(), "Error: " + error.getMessage(), Toast.LENGTH_LONG).show();
                             }
-                        }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_LONG).show();
+                        });
+
+                        requestQueue.add(request);
+                        Intent intent = new Intent(ActivityLista.this, ActivityLista.class);
+                        startActivity(intent);
+                        finish();
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
                     }
-                });
 
-                requestQueue.add(request);
-
-//                    Intent intent = new Intent(ActivityLista.this, ActivityLista.class);
-//                    startActivity(intent);
-//                    finish();
+                }
             }
         });
 

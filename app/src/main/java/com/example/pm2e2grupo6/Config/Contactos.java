@@ -26,7 +26,8 @@ public class Contactos implements Serializable {
         this.video = video;
     }
 
-    public Contactos(String full_name,String telefono) {
+    public Contactos(String id_contacto,String full_name,String telefono) {
+        this.id_contacto=id_contacto;
         this.full_name = full_name;
         this.telefono=telefono;
     }
