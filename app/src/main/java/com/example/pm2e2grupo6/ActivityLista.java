@@ -36,13 +36,13 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ActivityLista extends AppCompatActivity {
+public class ActivityLista extends AppCompatActivity implements ListAdapter.OnItemDoubleClickListener {
 
     private RequestQueue requestQueue;
     List<Contactos> listContactos;
     SearchView searchView;
     ListAdapter listAdapter;
-    Button eliminar;
+    Button eliminar, actualizar;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,6 +52,7 @@ public class ActivityLista extends AppCompatActivity {
         searchView = (SearchView) findViewById(R.id.searchView);
         searchView.clearFocus();
         eliminar = (Button) findViewById(R.id.btnEliminar);
+        actualizar=(Button) findViewById(R.id.btnActualizar);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -75,6 +76,25 @@ public class ActivityLista extends AppCompatActivity {
                     // Mostrar un mensaje si no se ha seleccionado ningún contacto
                     Toast.makeText(ActivityLista.this, "Selecciona un contacto primero", Toast.LENGTH_SHORT).show();
                 }
+            }
+        });
+
+        actualizar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent=new Intent(getApplicationContext(),ActivityUpdate.class);
+
+                // Obtener el contacto seleccionado
+                int selectedItemIndex = ListAdapter.getSelectedItem();
+                if (selectedItemIndex != -1) {
+                    Contactos contactos = listContactos.get(selectedItemIndex);
+                    intent.putExtra("full_name", contactos.getFull_name());
+                    intent.putExtra("telefono", contactos.getTelefono());
+                    intent.putExtra("latitud", contactos.getLatitud_gps());
+                    intent.putExtra("longitud", contactos.getLongitud_gps());
+                }
+                startActivity(intent);
+                finish();
             }
         });
 
@@ -111,7 +131,10 @@ public class ActivityLista extends AppCompatActivity {
                             contactos.setId_contacto(obj.get("id_contacto").toString());
                             contactos.setFull_name(obj.get("full_name").toString());
                             contactos.setTelefono(obj.get("telefono").toString());
-                            listContactos.add(new Contactos(contactos.getId_contacto(), contactos.getFull_name(), contactos.getTelefono()));
+                            contactos.setLatitud_gps(obj.get("latitud_gps").toString());
+                            contactos.setLongitud_gps(obj.get("longitud_gps").toString());
+                            listContactos.add(new Contactos(contactos.getId_contacto(), contactos.getFull_name(), contactos.getTelefono(),
+                                    contactos.getLatitud_gps(),contactos.getLongitud_gps()));
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -130,6 +153,10 @@ public class ActivityLista extends AppCompatActivity {
         requestQueue.add(request);
     }
 
+    @Override
+    public void onItemDoubleClick(Contactos contactos) {
+        Toast.makeText(getApplicationContext(), "Hola  ", Toast.LENGTH_LONG).show();
+    }
     private void llenarLista() {
 //        personas=new ArrayList<>();
 //        personas.add(new Personas("Kevin"));
@@ -137,7 +164,34 @@ public class ActivityLista extends AppCompatActivity {
         listAdapter = new ListAdapter(listContactos, this, new ListAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(Contactos contactos) {
-                moveToDescription(contactos);
+                Toast.makeText(getApplicationContext(), "Hola  ", Toast.LENGTH_LONG).show();
+            }
+        }, new ListAdapter.OnItemDoubleClickListener() {
+            @Override
+            public void onItemDoubleClick(Contactos contactos) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(ActivityLista.this);
+                    builder.setTitle("Desea ver la ubicación");
+                    builder.setMessage("¿Desea ver la ubicación del contacto seleccionado?");
+
+                    // Agregar botón de actualizar
+                    builder.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            int selectedItemIndex = ListAdapter.getSelectedItem();
+                            if (selectedItemIndex != -1) {
+                                Contactos contactos = listContactos.get(selectedItemIndex);
+                            }
+                        }
+                    });
+
+                    builder.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // Si el usuario cancela la eliminación, no hacer nada
+                        }
+                    });
+
+                    builder.show();
             }
         });
         RecyclerView recyclerView = findViewById(R.id.listRecyclerView);
