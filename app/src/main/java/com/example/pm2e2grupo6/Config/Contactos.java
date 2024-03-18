@@ -26,10 +26,12 @@ public class Contactos implements Serializable {
         this.video = video;
     }
 
-    public Contactos(String id_contacto,String full_name,String telefono) {
+    public Contactos(String id_contacto,String full_name,String telefono, String latitud_gps, String longitud_gps) {
         this.id_contacto=id_contacto;
         this.full_name = full_name;
         this.telefono=telefono;
+        this.latitud_gps=latitud_gps;
+        this.longitud_gps=longitud_gps;
     }
 
     public String getId_contacto() {

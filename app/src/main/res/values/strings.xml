@@ -10,5 +10,6 @@
     <string name="lista">Lista</string>
     <string name="actualizar">Actualizar contacto</string>
     <string name="eliminar">Eliminar contacto</string>
+    <string name="actualizar2">Guardar cambios</string>
 
 </resources>
