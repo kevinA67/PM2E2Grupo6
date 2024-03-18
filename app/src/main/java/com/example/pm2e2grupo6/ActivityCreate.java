@@ -6,13 +6,20 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+
 import android.Manifest;
+import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -36,6 +43,21 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.sql.SQLException;
+import java.sql.Blob;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
+
 public class ActivityCreate extends AppCompatActivity implements OnMapReadyCallback {
     //gps
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
@@ -49,6 +71,8 @@ public class ActivityCreate extends AppCompatActivity implements OnMapReadyCallb
     EditText nombre, telefono, latitud, longitud;
     VideoView videoView;
     Uri videoUri;
+    String base64,direccion;
+String video,video2;
     private RequestQueue requestQueue;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -166,6 +190,10 @@ public class ActivityCreate extends AppCompatActivity implements OnMapReadyCallb
         contactos.setTelefono(telefono.getText().toString());
         contactos.setLatitud_gps(latitud.getText().toString());
         contactos.setLongitud_gps(longitud.getText().toString());
+        contactos.setVideo(video);
+
+       // String video = convertToBase64(getApplicationContext(), videoUri);
+        String video2= guardarVideo(videoUri);
 
         JSONObject jsonObject = new JSONObject();
         try {
@@ -173,7 +201,7 @@ public class ActivityCreate extends AppCompatActivity implements OnMapReadyCallb
             jsonObject.put("telefono", contactos.getTelefono());
             jsonObject.put("latitud_gps", contactos.getLatitud_gps());
             jsonObject.put("longitud_gps", contactos.getLongitud_gps());
-
+            jsonObject.put("video", video2);
 
             JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, RestApiMethods.EndpointPostContact,
                     jsonObject, new Response.Listener<JSONObject>() {
@@ -242,4 +270,77 @@ public class ActivityCreate extends AppCompatActivity implements OnMapReadyCallb
         }
 
     }
+
+    public static String convertToBase64(Context context, String videoUri) {
+        FileInputStream video_obj = null;
+        try{
+            video_obj = new FileInputStream(videoUri);
+        }catch (FileNotFoundException e){
+            e.printStackTrace();
+        }
+
+        ByteArrayOutputStream video_byte = new ByteArrayOutputStream();
+        byte[] byteBufferString = new byte[1024];
+        try{
+            for (int readNum; (readNum = video_obj.read(byteBufferString))!= -1;){
+                video_byte.write(byteBufferString,0,readNum);
+            }
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+        String video_codificado;
+        String video_encode = Base64.encodeToString(video_byte.toByteArray(),Base64.DEFAULT);
+        Log.d("video_encode", video_encode);
+        video_codificado=video_encode;
+        return video_codificado = video_encode;
+    }
+
+    private String guardarVideo(Uri videoUri) {
+        // Asegúrate de que el almacenamiento externo esté disponible para escritura
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+            // Crea un directorio para guardar los videos si no existe
+            File directory = new File(Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_MOVIES), "MyApp");
+            if (!directory.exists()) {
+                directory.mkdirs();
+            }
+            // Crea un nombre de archivo único para el video
+            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
+            String videoFileName = "VID_" + timeStamp + ".mp4";
+            // Guarda el video en un archivo en el directorio creado
+            File videoFile = new File(directory, videoFileName);
+            try {
+                InputStream inputStream = getContentResolver().openInputStream(videoUri);
+                FileOutputStream outputStream = new FileOutputStream(videoFile);
+                byte[] buffer = new byte[1024];
+                int bytesRead;
+                while ((bytesRead = inputStream.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, bytesRead);
+                }
+                inputStream.close();
+                outputStream.close();
+                // Notifica al sistema que se ha agregado un nuevo video
+                MediaScannerConnection.scanFile(this,
+                        new String[]{videoFile.getAbsolutePath()}, null, new MediaScannerConnection.OnScanCompletedListener() {
+                            @Override
+                            public void onScanCompleted(String path, Uri uri) {
+                                video = path; // Establecer la URI del video guardado
+                                base64=convertToBase64(getApplicationContext(),path);
+                                // Muestra un mensaje de éxito
+                                // Toast.makeText(MainActivity.this, "Video guardado en " + path, Toast.LENGTH_LONG).show();
+                            }
+                        });
+            } catch (IOException e) {
+                e.printStackTrace();
+                // Muestra un mensaje de error si ocurre un problema al guardar el video
+                Toast.makeText(this, "Error al guardar el video", Toast.LENGTH_LONG).show();
+            }
+        } else {
+            // Muestra un mensaje si el almacenamiento externo no está disponible
+            Toast.makeText(this, "El almacenamiento externo no está disponible", Toast.LENGTH_LONG).show();
+        }
+        return  video;
+    }
+
 }
