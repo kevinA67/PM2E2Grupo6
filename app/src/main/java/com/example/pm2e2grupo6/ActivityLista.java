@@ -92,6 +92,7 @@ public class ActivityLista extends AppCompatActivity implements ListAdapter.OnIt
                     intent.putExtra("telefono", contactos.getTelefono());
                     intent.putExtra("latitud", contactos.getLatitud_gps());
                     intent.putExtra("longitud", contactos.getLongitud_gps());
+                    intent.putExtra("video", contactos.getVideo());
                 }
                 startActivity(intent);
                 finish();
@@ -180,6 +181,12 @@ public class ActivityLista extends AppCompatActivity implements ListAdapter.OnIt
                             int selectedItemIndex = ListAdapter.getSelectedItem();
                             if (selectedItemIndex != -1) {
                                 Contactos contactos = listContactos.get(selectedItemIndex);
+
+                                Intent intent=new Intent(getApplicationContext(),ActivityMapa.class);
+                                intent.putExtra("latitud", contactos.getLatitud_gps());
+                                intent.putExtra("longitud", contactos.getLongitud_gps());
+                                startActivity(intent);
+
                             }
                         }
                     });

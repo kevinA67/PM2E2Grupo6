@@ -75,6 +75,13 @@ public class ActivityUpdate extends AppCompatActivity {
         String telefono = intent.getStringExtra("telefono");
         String latitud = intent.getStringExtra("latitud");
         String longitud = intent.getStringExtra("longitud");
+        String video = intent.getStringExtra("video");
+
+        //videoView.setVideoURI(Uri.parse("/videos/video.mp4"));
+       // videoView.setVideoURI(Uri.parse("Internal storage/DCIM/Camera/VID_20240317_215515.mp4"));
+
+        videoView.setVideoURI(Uri.parse(video));
+        videoView.start();
 
         this.nombre.setText(nombre);
         this.telefono.setText(telefono);
