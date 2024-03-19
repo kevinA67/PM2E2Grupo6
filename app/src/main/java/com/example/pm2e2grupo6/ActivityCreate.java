@@ -90,6 +90,9 @@ public class ActivityCreate extends AppCompatActivity implements OnMapReadyCallb
         longitud=(EditText) findViewById(R.id.txtLongitud);
         videoView=(VideoView) findViewById(R.id.videoView);
         tomarVideo=(Button) findViewById(R.id.btnTomarVideo2);
+
+        videoView.setVisibility(View.INVISIBLE);
+
         // Inicializar el proveedor de ubicación
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
@@ -201,8 +204,9 @@ public class ActivityCreate extends AppCompatActivity implements OnMapReadyCallb
                 @Override
                 public void onResponse(JSONObject response) {
                     try {
-                        String mensaje = response.getString("message");
-                        Toast.makeText(getApplicationContext(), "Contacto salvado.", Toast.LENGTH_LONG).show();
+                        String mensaje = response.getString("Notificacion");
+                        Toast.makeText(getApplicationContext(), "Contacto salvado ("+mensaje+")", Toast.LENGTH_LONG).show();
+                        limpiar();
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     }
@@ -213,8 +217,10 @@ public class ActivityCreate extends AppCompatActivity implements OnMapReadyCallb
                     Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_LONG).show();
                 }
             });
-
+            //Toast.makeText(this, "No es posible abrir la cámara", Toast.LENGTH_SHORT).show();
             requestQueue.add(request);
+
+
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -239,6 +245,14 @@ public class ActivityCreate extends AppCompatActivity implements OnMapReadyCallb
         }
     }
 
+    private void limpiar(){
+        nombre.setText("");
+        telefono.setText("");
+        latitud.setText("");
+        longitud.setText("");
+        videoView.setVisibility(View.INVISIBLE);
+    }
+
     private void dispatchTakeVideoIntent() {
         Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
         if (takeVideoIntent.resolveActivity(getPackageManager()) != null) {
@@ -255,6 +269,7 @@ public class ActivityCreate extends AppCompatActivity implements OnMapReadyCallb
         if (requestCode == REQUEST_VIDEO_CAPTURE && resultCode == RESULT_OK) {
             videoUri = data.getData();
             videoView.setVideoURI(videoUri);
+            videoView.setVisibility(View.VISIBLE);
             videoView.start();
             requestLocation();
             getRealPath = getRealPathFromURI(this,videoUri);
