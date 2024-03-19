@@ -1,5 +1,7 @@
 package com.example.pm2e2grupo6;
 
+import static com.example.pm2e2grupo6.Config.pathUtils.getRealPathFromURI;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -37,6 +39,7 @@ import com.example.pm2e2grupo6.Config.RestApiMethods;
 
 import org.json.JSONObject;
 
+import com.example.pm2e2grupo6.Config.VideoToBase64Converter;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.GoogleMap;
@@ -71,8 +74,8 @@ public class ActivityCreate extends AppCompatActivity implements OnMapReadyCallb
     EditText nombre, telefono, latitud, longitud;
     VideoView videoView;
     Uri videoUri;
-    String base64,direccion;
-String video,video2;
+    String base64,direccion,getRealPath;
+    String video,video2;
     private RequestQueue requestQueue;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,21 +84,15 @@ String video,video2;
 
         contactos=(Button) findViewById(R.id.btnContactos);
         salvarContacto=(Button) findViewById(R.id.btnSalvar);
-        nombre=(EditText) findViewById(R.id.txtNombreUpdate);
-        telefono=(EditText) findViewById(R.id.txtTelefonoUpdate);
-        latitud=(EditText) findViewById(R.id.txtLatitudUpdate);
-        longitud=(EditText) findViewById(R.id.txtLongitudUpdate);
+        nombre=(EditText) findViewById(R.id.txtNombre);
+        telefono=(EditText) findViewById(R.id.txtTelefono);
+        latitud=(EditText) findViewById(R.id.txtLatitud);
+        longitud=(EditText) findViewById(R.id.txtLongitud);
         videoView=(VideoView) findViewById(R.id.videoView);
         tomarVideo=(Button) findViewById(R.id.btnTomarVideo2);
-//gps
         // Inicializar el proveedor de ubicación
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
-        // Obtener el fragmento del mapa
-        //     SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-        //             .findFragmentById(R.id.mapFragment);
-        //     mapFragment.getMapAsync(this);
-//gps
         contactos.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -185,15 +182,11 @@ String video,video2;
     private void savedata() {
         requestQueue = Volley.newRequestQueue(this);
         Contactos contactos=new Contactos();
-
         contactos.setFull_name(nombre.getText().toString());
         contactos.setTelefono(telefono.getText().toString());
         contactos.setLatitud_gps(latitud.getText().toString());
         contactos.setLongitud_gps(longitud.getText().toString());
-        contactos.setVideo(video);
-
-       // String video = convertToBase64(getApplicationContext(), videoUri);
-        String video2= guardarVideo(videoUri);
+        contactos.setVideo(getRealPath);
 
         JSONObject jsonObject = new JSONObject();
         try {
@@ -201,7 +194,7 @@ String video,video2;
             jsonObject.put("telefono", contactos.getTelefono());
             jsonObject.put("latitud_gps", contactos.getLatitud_gps());
             jsonObject.put("longitud_gps", contactos.getLongitud_gps());
-            jsonObject.put("video", video2);
+            jsonObject.put("video", contactos.getVideo());
 
             JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, RestApiMethods.EndpointPostContact,
                     jsonObject, new Response.Listener<JSONObject>() {
@@ -264,6 +257,7 @@ String video,video2;
             videoView.setVideoURI(videoUri);
             videoView.start();
             requestLocation();
+            getRealPath = getRealPathFromURI(this,videoUri);
             Toast.makeText(this, "Video guardado con éxito en el dev", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(this, "La grabación de video fue cancelada!", Toast.LENGTH_SHORT).show();
@@ -271,10 +265,10 @@ String video,video2;
 
     }
 
-    public static String convertToBase64(Context context, String videoUri) {
+    public static String convertToBase64(Context context, String path) {
         FileInputStream video_obj = null;
         try{
-            video_obj = new FileInputStream(videoUri);
+            video_obj = new FileInputStream(path);
         }catch (FileNotFoundException e){
             e.printStackTrace();
         }
@@ -293,54 +287,6 @@ String video,video2;
         Log.d("video_encode", video_encode);
         video_codificado=video_encode;
         return video_codificado = video_encode;
-    }
-
-    private String guardarVideo(Uri videoUri) {
-        // Asegúrate de que el almacenamiento externo esté disponible para escritura
-        String state = Environment.getExternalStorageState();
-        if (Environment.MEDIA_MOUNTED.equals(state)) {
-            // Crea un directorio para guardar los videos si no existe
-            File directory = new File(Environment.getExternalStoragePublicDirectory(
-                    Environment.DIRECTORY_MOVIES), "MyApp");
-            if (!directory.exists()) {
-                directory.mkdirs();
-            }
-            // Crea un nombre de archivo único para el video
-            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
-            String videoFileName = "VID_" + timeStamp + ".mp4";
-            // Guarda el video en un archivo en el directorio creado
-            File videoFile = new File(directory, videoFileName);
-            try {
-                InputStream inputStream = getContentResolver().openInputStream(videoUri);
-                FileOutputStream outputStream = new FileOutputStream(videoFile);
-                byte[] buffer = new byte[1024];
-                int bytesRead;
-                while ((bytesRead = inputStream.read(buffer)) != -1) {
-                    outputStream.write(buffer, 0, bytesRead);
-                }
-                inputStream.close();
-                outputStream.close();
-                // Notifica al sistema que se ha agregado un nuevo video
-                MediaScannerConnection.scanFile(this,
-                        new String[]{videoFile.getAbsolutePath()}, null, new MediaScannerConnection.OnScanCompletedListener() {
-                            @Override
-                            public void onScanCompleted(String path, Uri uri) {
-                                video = path; // Establecer la URI del video guardado
-                                base64=convertToBase64(getApplicationContext(),path);
-                                // Muestra un mensaje de éxito
-                                // Toast.makeText(MainActivity.this, "Video guardado en " + path, Toast.LENGTH_LONG).show();
-                            }
-                        });
-            } catch (IOException e) {
-                e.printStackTrace();
-                // Muestra un mensaje de error si ocurre un problema al guardar el video
-                Toast.makeText(this, "Error al guardar el video", Toast.LENGTH_LONG).show();
-            }
-        } else {
-            // Muestra un mensaje si el almacenamiento externo no está disponible
-            Toast.makeText(this, "El almacenamiento externo no está disponible", Toast.LENGTH_LONG).show();
-        }
-        return  video;
     }
 
 }

@@ -37,7 +37,7 @@
         app:layout_constraintTop_toBottomOf="@+id/btnTomarVideo2" />
 
     <EditText
-        android:id="@+id/txtNombreUpdate"
+        android:id="@+id/txtNombre"
         android:layout_width="361dp"
         android:layout_height="40dp"
         android:layout_marginStart="25dp"
@@ -56,10 +56,10 @@
         android:text="@string/telefono"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtNombreUpdate" />
+        app:layout_constraintTop_toBottomOf="@+id/txtNombre" />
 
     <EditText
-        android:id="@+id/txtTelefonoUpdate"
+        android:id="@+id/txtTelefono"
         android:layout_width="361dp"
         android:layout_height="40dp"
         android:layout_marginStart="25dp"
@@ -78,10 +78,10 @@
         android:text="@string/latitud"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtTelefonoUpdate" />
+        app:layout_constraintTop_toBottomOf="@+id/txtTelefono" />
 
     <EditText
-        android:id="@+id/txtLatitudUpdate"
+        android:id="@+id/txtLatitud"
         android:layout_width="361dp"
         android:layout_height="40dp"
         android:layout_marginStart="25dp"
@@ -100,10 +100,10 @@
         android:text="@string/longitud"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtLatitudUpdate" />
+        app:layout_constraintTop_toBottomOf="@+id/txtLatitud" />
 
     <EditText
-        android:id="@+id/txtLongitudUpdate"
+        android:id="@+id/txtLongitud"
         android:layout_width="361dp"
         android:layout_height="40dp"
         android:layout_marginStart="25dp"

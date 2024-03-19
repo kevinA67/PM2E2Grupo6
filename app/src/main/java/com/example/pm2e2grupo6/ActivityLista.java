@@ -88,6 +88,7 @@ public class ActivityLista extends AppCompatActivity implements ListAdapter.OnIt
                 int selectedItemIndex = ListAdapter.getSelectedItem();
                 if (selectedItemIndex != -1) {
                     Contactos contactos = listContactos.get(selectedItemIndex);
+                    intent.putExtra("id_contacto", contactos.getId_contacto());
                     intent.putExtra("full_name", contactos.getFull_name());
                     intent.putExtra("telefono", contactos.getTelefono());
                     intent.putExtra("latitud", contactos.getLatitud_gps());
@@ -134,8 +135,9 @@ public class ActivityLista extends AppCompatActivity implements ListAdapter.OnIt
                             contactos.setTelefono(obj.get("telefono").toString());
                             contactos.setLatitud_gps(obj.get("latitud_gps").toString());
                             contactos.setLongitud_gps(obj.get("longitud_gps").toString());
+                            contactos.setVideo(obj.get("video").toString());
                             listContactos.add(new Contactos(contactos.getId_contacto(), contactos.getFull_name(), contactos.getTelefono(),
-                                    contactos.getLatitud_gps(),contactos.getLongitud_gps()));
+                                    contactos.getLatitud_gps(),contactos.getLongitud_gps(),contactos.getVideo()));
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -170,35 +172,35 @@ public class ActivityLista extends AppCompatActivity implements ListAdapter.OnIt
         }, new ListAdapter.OnItemDoubleClickListener() {
             @Override
             public void onItemDoubleClick(Contactos contactos) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(ActivityLista.this);
-                    builder.setTitle("Desea ver la ubicación");
-                    builder.setMessage("¿Desea ver la ubicación del contacto seleccionado?");
+                AlertDialog.Builder builder = new AlertDialog.Builder(ActivityLista.this);
+                builder.setTitle("Desea ver la ubicación");
+                builder.setMessage("¿Desea ver la ubicación del contacto seleccionado?");
 
-                    // Agregar botón de actualizar
-                    builder.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            int selectedItemIndex = ListAdapter.getSelectedItem();
-                            if (selectedItemIndex != -1) {
-                                Contactos contactos = listContactos.get(selectedItemIndex);
+                // Agregar botón de actualizar
+                builder.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        int selectedItemIndex = ListAdapter.getSelectedItem();
+                        if (selectedItemIndex != -1) {
+                            Contactos contactos = listContactos.get(selectedItemIndex);
 
-                                Intent intent=new Intent(getApplicationContext(),ActivityMapa.class);
-                                intent.putExtra("latitud", contactos.getLatitud_gps());
-                                intent.putExtra("longitud", contactos.getLongitud_gps());
-                                startActivity(intent);
+                            Intent intent=new Intent(getApplicationContext(),ActivityMapa.class);
+                            intent.putExtra("latitud", contactos.getLatitud_gps());
+                            intent.putExtra("longitud", contactos.getLongitud_gps());
+                            startActivity(intent);
 
-                            }
                         }
-                    });
+                    }
+                });
 
-                    builder.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            // Si el usuario cancela la eliminación, no hacer nada
-                        }
-                    });
+                builder.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Si el usuario cancela la eliminación, no hacer nada
+                    }
+                });
 
-                    builder.show();
+                builder.show();
             }
         });
         RecyclerView recyclerView = findViewById(R.id.listRecyclerView);

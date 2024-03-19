@@ -30,6 +30,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.pm2e2grupo6.Config.Contactos;
+import com.example.pm2e2grupo6.Config.ListAdapter;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -51,6 +52,7 @@ public class ActivityUpdate extends AppCompatActivity {
     Button guardarCambios, tomarVideo;
     VideoView videoView;
     Uri videoUri;
+    String id,video;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,14 +73,15 @@ public class ActivityUpdate extends AppCompatActivity {
         videoView=(VideoView) findViewById(R.id.videoViewUpdate);
 
         Intent intent = getIntent();
+        id=intent.getStringExtra("id_contacto");
         String nombre = intent.getStringExtra("full_name");
         String telefono = intent.getStringExtra("telefono");
         String latitud = intent.getStringExtra("latitud");
         String longitud = intent.getStringExtra("longitud");
-        String video = intent.getStringExtra("video");
+        video = intent.getStringExtra("video");
 
         //videoView.setVideoURI(Uri.parse("/videos/video.mp4"));
-       // videoView.setVideoURI(Uri.parse("Internal storage/DCIM/Camera/VID_20240317_215515.mp4"));
+        // videoView.setVideoURI(Uri.parse("Internal storage/DCIM/Camera/VID_20240317_215515.mp4"));
 
         videoView.setVideoURI(Uri.parse(video));
         videoView.start();
@@ -197,18 +200,20 @@ public class ActivityUpdate extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // Obtener el contacto seleccionado
-//                int selectedItemIndex = ListAdapter.getSelectedItem();
-//                if (selectedItemIndex != -1) {
-//                    Contactos contactos = listContactos.get(selectedItemIndex);
+ //               int selectedItemIndex = ListAdapter.getSelectedItem();
+   //             if (selectedItemIndex != -1) {
+     //               Contactos contactos = listContactos.get(selectedItemIndex);
 
 
                 JSONObject jsonObject = new JSONObject();
                 try {
-                    jsonObject.put("id_contacto", "13");
+                    jsonObject.put("id_contacto", id);
                     jsonObject.put("full_name", nombre.getText());
                     jsonObject.put("telefono", telefono.getText());
                     jsonObject.put("latitud_gps", latitud.getText());
                     jsonObject.put("longitud_gps", longitud.getText());
+                    jsonObject.put("video", video);
+
 
                     //Toast.makeText(getApplicationContext(), "Contacto seleccionado:  " + contactos.getFull_name(), Toast.LENGTH_LONG).show();
 
@@ -238,8 +243,8 @@ public class ActivityUpdate extends AppCompatActivity {
                     ex.printStackTrace();
                 }
 
-            }
-//            }
+     //       }
+           }
         });
         builder.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
             @Override
